@@ -31,12 +31,23 @@ class AuthenticatedSessionController extends Controller
      * @param  \App\Http\Requests\Auth\LoginRequest  $request
      * @return \Illuminate\Http\RedirectResponse
      */
+    
     public function store(LoginRequest $request)
     {
         $request->authenticate();
 
         $request->session()->regenerate();
 
+        // Redireciona com base na role do usuário
+        if (auth()->user()->role === 'secretaria') {
+            return redirect()->intended('/dashboard');
+        } elseif (auth()->user()->role === 'patient') {
+            return redirect()->intended('/patient');
+        } elseif (auth()->user()->role === 'psicologo') {
+            return redirect()->intended('/psychologist');
+        }
+
+        // Redirecionamento padrão se a role não estiver definida
         return redirect()->intended(RouteServiceProvider::HOME);
     }
 

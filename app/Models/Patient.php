@@ -26,5 +26,6 @@ class Patient extends Authenticatable
         'cidade',
         'estado',
         'phone',
+        'user_id'
     ];
 }

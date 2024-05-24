@@ -27,25 +27,40 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::middleware(['auth'])->group(function () {
+    Route::get('/dashboard', function () {
+        return Inertia::render('Dashboard');
+    })->middleware('role:secretaria')->name('dashboard');
+
+    Route::get('/patient', function () {
+        return Inertia::render('Patient');
+    })->name('patient')->middleware('role:patient');
+
+    Route::get('/psychologist', function () {
+        return Inertia::render('Psychologist');
+    })->name('psychologist')->middleware('role:psicologo');
+});
+
 
 require __DIR__.'/auth.php';
 
 Route::view('/login', 'auth.login')->name('login');
 
-Route::view('/register', 'auth.register')->name('register');
-
 Route::post('/send-email', [ContactController::class, 'sendEmail']);
 
-Route::get('/appointments', [AppointmentController::class, 'index']);
+Route::get('/appointments', [AppointmentController::class, 'index'])->name('appointments.index');
 
-Route::get('/appointments/create', [AppointmentController::class, 'create'])->name('appointments.create');
+Route::get('/appointments-create', function () {
+    return inertia('AgendarConsultas');
+})->name('appointments.create')->middleware('role:patient');
+
+Route::post('/appointments', [AppointmentController::class, 'store'])->name('appointments.store');
 
 Route::post('/patients', [PatientController::class, 'store'])->middleware(['auth', 'role:secretaria'])->name('patients.store');
 
 Route::get('/create-patient', function () {
     return Inertia::render('CreatePatient');
 })->middleware(['auth', 'role:secretaria'])->name('create.patient');
+
+
 

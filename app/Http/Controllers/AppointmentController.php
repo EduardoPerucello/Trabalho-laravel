@@ -1,36 +1,61 @@
 <?php
 
+// AppointmentController.php
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Appointment;
+use Carbon\Carbon;
 
 class AppointmentController extends Controller
 {
-    // Método para exibir os agendamentos do usuário logado
     public function index()
     {
-        $user = auth()->user(); // Obtém o usuário autenticado
-        $appointments = $user->appointments()->orderBy('date', 'asc')->get(); // Obtém os agendamentos do usuário e os ordena por data
-        return response()->json(['appointments' => $appointments]); // Retorna os agendamentos como uma resposta JSON
+        $appointments = Appointment::all();
+        return view('appointments.index', compact('appointments'));
     }
 
-    // Método para exibir o formulário de criação de agendamento
     public function create()
     {
-        return view('appointments.create'); // Retorna a view 'appointments.create' para criar um novo agendamento
+        // Carregar todos os pacientes e psicólogos disponíveis
+        $patients = \App\Models\Patient::all();
+        $psicologo = \App\Models\Psicologo::all();
+    
+        // Passar os dados para a view de criação de consulta
+        return view('appointments.create', compact('patients', 'psicologo'));
     }
-
-    // Método para armazenar um novo agendamento
+    
     public function store(Request $request)
-    {
-        $validatedData = $request->validate([
-            'date' => 'required|date',
-            // outras validações, se necessário
-        ]); // Valida os dados recebidos do formulário
+{
+    // Valide os dados recebidos do formulário
+    $validatedData = $request->validate([
+        'patient_id' => 'required|exists:patients,id',
+        'psicologo_id' => 'required|exists:psicologo,id',
+        'date' => 'required|date',
+        'time' => 'required|date_format:H:i',
+    ]);
 
-        $user = auth()->user(); // Obtém o usuário autenticado
-        $user->appointments()->create($validatedData); // Cria um novo agendamento associado ao usuário autenticado
+    try {
+        // Crie uma nova consulta com os dados validados
+        $appointment = Appointment::create([
+            'patient_id' => $validatedData['patient_id'],
+            'psicologo_id' => $validatedData['psicologo_id'],
+            'date_time' => $validatedData['date'] . ' ' . $validatedData['time'],
+        ]);
 
-        return redirect()->route('appointments.index')->with('success', 'Consulta agendada com sucesso!'); // Redireciona para a página de agendamentos e exibe uma mensagem de sucesso
+        // Retorna uma resposta JSON indicando o sucesso e o ID do paciente
+        return response()->json([
+            'success' => true,
+            'patient_id' => $validatedData['patient_id']
+        ]);
+    } catch (\Exception $e) {
+        // Retorna uma resposta JSON indicando o erro
+        return response()->json([
+            'success' => false,
+            'message' => 'Erro ao agendar a consulta: ' . $e->getMessage()
+        ], 500);
     }
+}
+
+    // Métodos edit, update, destroy permanecem os mesmos...
 }
