@@ -4,6 +4,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\PatientController;
 use Inertia\Inertia;
 
 /*
@@ -34,8 +35,17 @@ require __DIR__.'/auth.php';
 
 Route::view('/login', 'auth.login')->name('login');
 
+Route::view('/register', 'auth.register')->name('register');
+
 Route::post('/send-email', [ContactController::class, 'sendEmail']);
 
 Route::get('/appointments', [AppointmentController::class, 'index']);
 
 Route::get('/appointments/create', [AppointmentController::class, 'create'])->name('appointments.create');
+
+Route::post('/patients', [PatientController::class, 'store'])->middleware(['auth', 'role:secretaria'])->name('patients.store');
+
+Route::get('/create-patient', function () {
+    return Inertia::render('CreatePatient');
+})->middleware(['auth', 'role:secretaria'])->name('create.patient');
+
