@@ -58,7 +58,11 @@ function handleImageError() {
                     <a href="#sobre" class="hover:text-gray-600">Sobre</a>
                     <a href="#depoimentos" class="hover:text-gray-600">Depoimentos</a>
                     <template v-if="canLogin">
-                        <a v-if="$page.props.auth.user" href="/dashboard" class="btn btn-primary">Dashboard</a>
+                        <template v-if="$page.props.auth.user">
+                            <a v-if="$page.props.auth.user.role === 'secretaria'" href="/dashboard" class="btn btn-primary">Dashboard</a>
+                            <a v-else-if="$page.props.auth.user.role === 'patient'" href="/patient" class="btn btn-primary">Patient</a>
+                            <a v-else-if="$page.props.auth.user.role === 'psicologo'" href="/psicologo" class="btn btn-primary">Psicólogo</a>
+                        </template>
                         <template v-else>
                             <a href="/login" class="btn btn-secondary">Log in</a>
                             <a v-if="canRegister" href="/register" class="btn btn-secondary">Register</a>
@@ -67,7 +71,6 @@ function handleImageError() {
                 </div>
             </div>
         </nav>
-
         <!-- Main Content -->
         <div class="container mx-auto mt-16">
             <main>

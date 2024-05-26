@@ -2,15 +2,13 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
 
 class Patient extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -28,4 +26,9 @@ class Patient extends Authenticatable
         'phone',
         'user_id'
     ];
+    
+    public function appointments()
+    {
+        return $this->hasMany(Appointment::class, 'patients_id');
+    }
 }
