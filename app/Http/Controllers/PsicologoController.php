@@ -7,12 +7,29 @@ use App\Models\Psicologo;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Inertia\Inertia;
 
 class PsicologoController extends Controller
 {
     public function index()
     {
         return Psicologo::all();
+    }
+
+    public function index2($psicologo_id)
+    {
+        // Busque os dados do psicólogo do banco de dados
+        $psicologo = Psicologo::find($psicologo_id);
+
+        // Verifique se o psicólogo foi encontrado
+        if (!$psicologo) {
+            abort(404, 'Psicólogo não encontrado');
+        }
+
+        // Renderize a vista Inertia e passe os dados do psicólogo para a mesma
+        return Inertia::render('Psychologist', [
+            'psicologo' => $psicologo
+        ]);
     }
     
     public function store(Request $request)

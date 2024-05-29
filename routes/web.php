@@ -39,14 +39,12 @@ Route::middleware(['auth'])->group(function () {
         return Inertia::render('Patient');
     })->name('patient')->middleware('role:patient');
 
-    Route::get('/psychologist', function () {
-        return Inertia::render('Psychologist');
-    })->name('psychologist')->middleware('role:psicologo');
+    Route::get('/psychologist/{psicologo_id}', [PsicologoController::class, 'index2'])->name('psychologist.index2')->middleware('role:psicologo');
 });
 
 require __DIR__.'/auth.php';
 
-Route::view('/login', 'auth.login')->name('login');
+// Route::view('/login', 'auth.login')->name('login');
 
 Route::post('/send-email', [ContactController::class, 'sendEmail']);
 
@@ -86,8 +84,32 @@ Route::get('/historico', function () {
 
 Route::post('/notifications', [NotificationController::class, 'notifyPsicologo']);
 
+Route::get('/user', [NotificationController::class, 'getUser'])->middleware('auth');
+
 Route::get('/notifications/{psicologo_id}', [NotificationController::class, 'getNotifications']);
 
 Route::post('/notifications/read/{notification_id}', [NotificationController::class, 'markAsRead']);
 
-Route::get('/consultas/historico', [ConsultaHistoricoController::class, 'historico'])->name('consultas.historico');
+// Rotas para atualização de pacientes
+Route::middleware(['auth', 'role:psicologo'])->group(function () {
+    Route::put('/patients-update/{patients_id}', [PatientController::class, 'update'])->name('patients.update');
+});
+
+// Rota para adição de sessões
+Route::middleware(['auth', 'role:psicologo'])->group(function () {
+    Route::post('/patients/{id}/appointments', [PatientController::class, 'addAppointment'])->name('patients.addAppointment');
+});
+
+Route::get('/patient-view', function () {
+    return inertia('PatientList');
+})->name('patient.list')->middleware('role:psicologo');
+
+Route::get('/api/patients', [PatientController::class, 'index'])->middleware(['auth', 'role:psicologo'])->name('patients.index');
+
+Route::get('/patient/{id}', [PatientController::class, 'show']);
+
+Route::get('/patients/{id}/info', [PatientController::class, 'showPatient']);
+
+Route::get('/patient-edit/{patientId}', function () {
+    return inertia('PatientEdit');
+})->name('patient.edit')->middleware('role:psicologo');

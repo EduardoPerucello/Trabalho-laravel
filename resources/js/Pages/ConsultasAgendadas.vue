@@ -19,6 +19,7 @@
                 </div>
                 <div v-else>
                   <div v-for="consultation in upcomingConsultations" :key="consultation.id">
+                    <br>
                     <h2>{{ consultation.patient_name }}</h2>
                     <p>Data: {{ consultation.date }}</p>
                     <p>Hora: {{ consultation.time }}</p>
@@ -75,15 +76,6 @@
           this.loading = false;
         }
       },
-      // Verificar se alguma consulta precisa ser removida
-      checkConsultations() {
-        const now = new Date();
-        this.consultations = this.consultations.filter(consultation => {
-          const consultationTime = new Date(consultation.date + 'T' + consultation.time);
-          const consultationEndTime = new Date(consultationTime.getTime() + 10 * 60000); // Adicionar 10 minutos
-          return now < consultationEndTime;
-        });
-      }
     },
   };
   </script>

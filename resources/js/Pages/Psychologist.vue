@@ -5,14 +5,11 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import axios from 'axios';
 import { Head } from '@inertiajs/inertia-vue3';
 
-// Substitua pelo ID do psicólogo logado
-const psicologoId = 1;
-
 // Armazena as notificações não lidas
 const notifications = ref([]);
 
 // Função para verificar notificações
-const checkNotifications = async () => {
+const checkNotifications = async (psicologoId) => {
   try {
     const response = await axios.get(`/notifications/${psicologoId}`);
     notifications.value = response.data;
@@ -38,8 +35,13 @@ const markAsRead = async (notificationId) => {
 
 // Iniciar e parar o polling
 let intervalId;
-onMounted(() => {
-  intervalId = setInterval(checkNotifications, 5000); // Verifica a cada 5 segundos
+onMounted(async () => {
+  try {
+    const psicologoId = window.location.pathname.split('/').pop();
+    intervalId = setInterval(() => checkNotifications(psicologoId), 5000); // Verifica a cada 5 segundos
+  } catch (error) {
+    console.error('Erro ao obter o ID do psicólogo logado:', error);
+  }
 });
 
 onUnmounted(() => {
@@ -48,23 +50,38 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <Head title="Psicologo" />
+  <Head title="Psicologo" />
 
-    <AuthenticatedLayout>
-        <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Psicologo
-            </h2>
-        </template>
+  <AuthenticatedLayout>
+      <template #header>
+          <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+              Psicologo
+          </h2>
+      </template>
 
-        <div class="py-12">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6 bg-white border-b border-gray-200">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </AuthenticatedLayout>
+      <div class="py-12">
+          <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+              <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                  <div class="p-6 bg-white border-b border-gray-200">
+                      <!-- Botão para acessar a lista de psicólogos -->
+                      <a href="/patient-view" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                          Lista de Pacientes
+                      </a>
+                  </div>
+              </div>
+          </div>
+      </div>
+      <div class="py-12">
+          <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+              <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                  <div class="p-6 bg-white border-b border-gray-200">
+                      <!-- Botão para acessar os documentos -->
+                      <a href="/documentos" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-2">
+                          Documentos
+                      </a>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </AuthenticatedLayout>
 </template>
-

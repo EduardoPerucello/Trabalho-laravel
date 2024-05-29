@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue';
+import { useForm } from '@inertiajs/inertia-vue3';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
@@ -8,6 +9,7 @@ import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import { Link } from '@inertiajs/inertia-vue3';
 
 const showingNavigationDropdown = ref(false);
+const form = useForm({});
 </script>
 
 <template>
@@ -50,7 +52,7 @@ const showingNavigationDropdown = ref(false);
                                     </template>
 
                                     <template #content>
-                                        <DropdownLink :href="route('logout')" method="post" as="button">
+                                        <DropdownLink as="button" @click="form.post(route('logout'))">
                                             Log Out
                                         </DropdownLink>
                                     </template>
@@ -86,7 +88,7 @@ const showingNavigationDropdown = ref(false);
                         </div>
 
                         <div class="mt-3 space-y-1">
-                            <ResponsiveNavLink :href="route('logout')" method="post" as="button">
+                            <ResponsiveNavLink as="button" @click="form.post(route('logout'))">
                                 Log Out
                             </ResponsiveNavLink>
                         </div>

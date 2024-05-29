@@ -14,7 +14,8 @@ class Appointment extends Model
         'patients_id',
         'psicologo_id',
         'date',
-        'time'
+        'time',
+        'note'
     ];
 
     public function patients(): BelongsTo

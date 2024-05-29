@@ -38,19 +38,28 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        $user = auth()->user();
+
         // Redireciona com base na role do usuário
-        if (auth()->user()->role === 'secretaria') {
+        if ($user->role === 'secretaria') {
             return redirect()->intended('/dashboard');
-        } elseif (auth()->user()->role === 'patient') {
+        } elseif ($user->role === 'patient') {
             return redirect()->intended('/patient');
-        } elseif (auth()->user()->role === 'psicologo') {
-            return redirect()->intended('/psychologist');
+        } elseif ($user->role === 'psicologo') {
+            // Busque o psicólogo associado ao usuário
+            $psicologo = $user->psicologo;
+
+            if ($psicologo) {
+                return redirect()->route('psychologist.index2', ['psicologo_id' => $psicologo->id]);
+            } else {
+                // Caso o psicólogo não seja encontrado, redirecione para uma página padrão
+                return redirect()->intended(RouteServiceProvider::HOME);
+            }
         }
 
         // Redirecionamento padrão se a role não estiver definida
         return redirect()->intended(RouteServiceProvider::HOME);
     }
-
     /**
      * Destroy an authenticated session.
      *
@@ -65,6 +74,6 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return redirect()->intended(RouteServiceProvider::INICIO);
     }
 }

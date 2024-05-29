@@ -34,4 +34,9 @@ class Psicologo extends Authenticatable
     {
         return $this->hasMany(Appointment::class, 'psicologo_id');
     }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class, 'psicologo_id');
+    }
 }
