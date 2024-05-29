@@ -21,6 +21,9 @@
                   <a :href="'/patient-edit/' + patient.id" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                     Editar
                   </a>
+                  <a :href="'/patient-detail/' + patient.id" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Informações
+                  </a>
                 </div>
               </li>
             </ul>

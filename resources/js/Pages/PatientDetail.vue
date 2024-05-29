@@ -1,66 +1,102 @@
+<meta name="csrf-token" content="{{ csrf_token() }}"></meta>
+
 <template>
-    <AuthenticatedLayout>
-      <template #header>
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-          Secretaria
-        </h2>
-      </template>
-      <div v-if="patient">
-        <h1>{{ patient.full_name }}</h1>
-        <p>Endereço: {{ patient.endereco }}, {{ patient.bairro }}, {{ patient.cidade }}, {{ patient.estado }}</p>
-        <p>CEP: {{ patient.cep }}</p>
-        <p>Telefone: {{ patient.phone }}</p>
-  
-        <h2>Sessões</h2>
-        <ul>
-          <li v-for="appointment in patient.appointments" :key="appointment.id">
-            {{ appointment.date }} - {{ appointment.time }}:
-            <input type="text" v-model="appointment.note">
-            <button @click="updateAppointment(appointment)">Atualizar Nota</button>
-          </li>
-        </ul>
-  
-        <router-link :to="{ name: 'patient-edit', params: { id: patient.id } }">Editar Paciente</router-link>
+  <AuthenticatedLayout>
+    <template #header>
+      <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        Secretaria
+      </h2>
+    </template>
+
+    <div class="py-12">
+      <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+          <div class="p-6 bg-white border-b border-gray-200">
+            <h2>Informações</h2>
+            <div v-if="patient" :key="patient.id">
+              <h1>{{ patient.full_name }}</h1>
+              <p>Endereço: {{ patient.endereco }}, {{ patient.bairro }}, {{ patient.cidade }}, {{ patient.estado }}</p>
+              <p>CEP: {{ patient.cep }}</p>
+              <p>Telefone: {{ patient.phone }}</p>
+            </div>
+          </div>
+        </div>
       </div>
-      <div v-else>
-        <p>Carregando...</p>
+    </div>
+
+    <div class="py-12">
+      <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+          <div class="p-6 bg-white border-b border-gray-200">
+            <h2>Sessões</h2>
+            <ul>
+              <li v-for="session in sessions" :key="session.id" class="mb-4">
+                <p>Data: {{ session.date }}</p>
+                <p>Hora: {{ session.time }}</p>
+                <label for="note">Nota:</label>
+                <input type="text" v-model="session.note">
+                <button @click="updateNote(session)">Adicionar Nota</button>
+              </li>
+            </ul>
+          </div>
+        </div>
       </div>
-    </AuthenticatedLayout>
-  </template>
-  
-  <script setup>
-  import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-  import axios from 'axios';
-  
-  const { data, created, methods } = useData();
-  
-  function useData() {
-    const patient = ref(null);
-  
-    const fetchPatient = async () => {
-      const id = $route.params.id;
-      try {
-        const response = await axios.get(`/api/patients/${id}`);
-        patient.value = response.data;
-      } catch (error) {
-        console.error('Erro ao buscar paciente:', error);
-      }
-    };
-  
-    const updateAppointment = async (appointment) => {
-      try {
-        const response = await axios.put(`/api/appointments/${appointment.id}`, { note: appointment.note });
-        console.log('Nota atualizada com sucesso');
-      } catch (error) {
-        console.error('Erro ao atualizar nota:', error);
-      }
-    };
-  
-    created(() => {
-      fetchPatient();
-    });
-  
-    return { patient, updateAppointment };
+    </div>
+  </AuthenticatedLayout>
+</template>
+
+<script setup>
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import axios from 'axios';
+import { ref, onMounted } from 'vue';
+
+const patient = ref(null);
+const sessions = ref([]);
+
+// Obtenção do ID do paciente da URL
+const id = window.location.pathname.split('/').pop();
+
+const fetchPatient = async () => {
+  if (!id) {
+    console.error('ID do paciente não encontrado');
+    return;
   }
-  </script>
-  
+
+  try {
+    const response = await axios.get(`/patients/${id}/info`);
+    patient.value = response.data;
+    fetchSessions(); // Após buscar o paciente, buscar as sessões associadas
+  } catch (error) {
+    console.error('Erro ao buscar paciente:', error);
+  }
+};
+
+const fetchSessions = async () => {
+  try {
+    const response = await axios.get(`/patients/${id}/sessions`);
+    sessions.value = response.data;
+  } catch (error) {
+    console.error('Erro ao buscar sessões:', error);
+  }
+};
+
+const updateNote = async (session) => {
+  try {
+    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    
+    await axios.put(`appointments/${session.id}/note`, { note: session.note }, {
+      headers: {
+        'X-CSRF-TOKEN': token
+      }
+    });
+    
+    console.log('Nota adicionada com sucesso');
+  } catch (error) {
+    console.error('Erro ao adicionar nota:', error);
+  }
+};
+
+onMounted(() => {
+  fetchPatient();
+});
+</script>

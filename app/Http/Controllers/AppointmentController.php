@@ -73,5 +73,53 @@ class AppointmentController extends Controller
         }
     }
 
+    // app/Http/Controllers/AppointmentController.php
+    public function updateNote(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'note' => 'required|string|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro na validação dos dados.',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $appointment = Appointment::findOrFail($id);
+
+            $appointment->update(['note' => $request->note]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Nota atualizada com sucesso.',
+                'appointment' => $appointment
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao atualizar a nota: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+    public function patientSessions($patientId)
+    {
+        // Verificar se o paciente existe
+        $patient = Patient::find($patientId);
+        if (!$patient) {
+            return response()->json(['error' => 'Paciente não encontrado'], 404);
+        }
+
+        // Buscar as sessões associadas ao paciente
+        $sessions = Appointment::where('patients_id', $patientId)->get();
+
+        // Retornar as sessões
+        return response()->json($sessions);
+    }
     // Métodos index, create, edit, update, destroy permanecem os mesmos...
 }

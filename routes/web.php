@@ -7,7 +7,6 @@ use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PsicologoController;
 use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\AppointmentHistoricoController;
 use Inertia\Inertia;
 
 /*
@@ -84,8 +83,6 @@ Route::get('/historico', function () {
 
 Route::post('/notifications', [NotificationController::class, 'notifyPsicologo']);
 
-Route::get('/user', [NotificationController::class, 'getUser'])->middleware('auth');
-
 Route::get('/notifications/{psicologo_id}', [NotificationController::class, 'getNotifications']);
 
 Route::post('/notifications/read/{notification_id}', [NotificationController::class, 'markAsRead']);
@@ -93,11 +90,6 @@ Route::post('/notifications/read/{notification_id}', [NotificationController::cl
 // Rotas para atualização de pacientes
 Route::middleware(['auth', 'role:psicologo'])->group(function () {
     Route::put('/patients-update/{patients_id}', [PatientController::class, 'update'])->name('patients.update');
-});
-
-// Rota para adição de sessões
-Route::middleware(['auth', 'role:psicologo'])->group(function () {
-    Route::post('/patients/{id}/appointments', [PatientController::class, 'addAppointment'])->name('patients.addAppointment');
 });
 
 Route::get('/patient-view', function () {
@@ -113,3 +105,11 @@ Route::get('/patients/{id}/info', [PatientController::class, 'showPatient']);
 Route::get('/patient-edit/{patientId}', function () {
     return inertia('PatientEdit');
 })->name('patient.edit')->middleware('role:psicologo');
+
+Route::get('/patient-detail/{patientsId}', function () {
+    return inertia('PatientDetail');
+})->name('patient.detail')->middleware('role:psicologo');
+
+Route::put('appointments/{id}/note', [AppointmentController::class, 'updateNote']);
+
+Route::get('/patients/{id}/sessions', [AppointmentController::class, 'patientSessions']);
