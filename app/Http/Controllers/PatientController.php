@@ -72,6 +72,7 @@ class PatientController extends Controller
 
     public function update(Request $request, $id)
     {
+        // Encontrar o paciente pelo ID
         $patient = Patient::find($id);
 
         if (!$patient) {
@@ -80,6 +81,7 @@ class PatientController extends Controller
             ], 404);
         }
 
+        // Validar a entrada
         $validator = Validator::make($request->all(), [
             'full_name' => 'sometimes|required|string|max:255',
             'cep' => 'sometimes|required|string|size:8',
@@ -88,8 +90,6 @@ class PatientController extends Controller
             'cidade' => 'sometimes|required|string|max:255',
             'estado' => 'sometimes|required|string|size:2',
             'phone' => 'sometimes|required|string|max:15',
-            'email' => 'sometimes|required|string|email|max:255|unique:users,email,' . $patient->user->id,
-            'password' => 'sometimes|required|string|min:8',
         ]);
 
         if ($validator->fails()) {
@@ -99,6 +99,7 @@ class PatientController extends Controller
             ], 422);
         }
 
+        // Atualizar campos do paciente
         $patient->update($request->only([
             'full_name',
             'cep',
@@ -108,17 +109,6 @@ class PatientController extends Controller
             'estado',
             'phone'
         ]));
-
-        if ($request->has('email') || $request->has('password')) {
-            $user = $patient->user;
-            if ($request->has('email')) {
-                $user->email = $request->email;
-            }
-            if ($request->has('password')) {
-                $user->password = Hash::make($request->password);
-            }
-            $user->save();
-        }
 
         return response()->json([
             'message' => 'Paciente atualizado com sucesso',

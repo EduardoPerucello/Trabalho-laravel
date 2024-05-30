@@ -88,9 +88,7 @@ Route::get('/notifications/{psicologo_id}', [NotificationController::class, 'get
 Route::post('/notifications/read/{notification_id}', [NotificationController::class, 'markAsRead']);
 
 // Rotas para atualização de pacientes
-Route::middleware(['auth', 'role:psicologo'])->group(function () {
-    Route::put('/patients-update/{patients_id}', [PatientController::class, 'update'])->name('patients.update');
-});
+Route::put('/patients-update/{id}', [PatientController::class, 'update']);
 
 Route::get('/patient-view', function () {
     return inertia('PatientList');
