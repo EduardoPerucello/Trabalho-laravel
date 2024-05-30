@@ -44,7 +44,15 @@ class AuthenticatedSessionController extends Controller
         if ($user->role === 'secretaria') {
             return redirect()->intended('/dashboard');
         } elseif ($user->role === 'patient') {
-            return redirect()->intended('/patient');
+            // Busque o psicólogo associado ao usuário
+            $patient = $user->patients;
+
+            if ($patient) {
+                return redirect()->route('patient.index2', ['patients_id' => $patient->id]);
+            } else {
+                // Caso o psicólogo não seja encontrado, redirecione para uma página padrão
+                return redirect()->intended(RouteServiceProvider::HOME);
+            }
         } elseif ($user->role === 'psicologo') {
             // Busque o psicólogo associado ao usuário
             $psicologo = $user->psicologo;

@@ -17,7 +17,7 @@
                             <form @submit.prevent="submitForm" class="max-w-md mx-auto">
                             <div class="mb-4">
                                 <label for="patients_id" class="block text-sm font-medium text-gray-700">Paciente</label>
-                                <input type="text" v-model="patientId" id="patients_id" placeholder="ID do Paciente" class="mt-1 p-2 border rounded-md w-full">
+                                <input v-model="patientId" id="patients_id" placeholder="ID do Paciente" class="mt-1 p-2 border rounded-md w-full" readonly>
                             </div>
                             <div class="mb-4">
                                 <label for="psicologo_id" class="block text-sm font-medium text-gray-700">Psicólogo</label>
@@ -45,13 +45,13 @@
 
 <script setup>
 import { ref } from 'vue';
-import { usePage } from '@inertiajs/inertia-vue3';
+import { usePage, useRoute } from '@inertiajs/inertia-vue3';
 import axios from 'axios';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/inertia-vue3';
 
 const { $inertia } = usePage();
-const patientId = ref('');
+const patientId = window.location.pathname.split('/').pop();
 const psicologoId = ref('');
 const date = ref('');
 const time = ref('');
@@ -61,21 +61,20 @@ const successMessage = ref('');
 const submitForm = async () => {
     errorMessage.value = '';
     successMessage.value = '';
-    console.log(patientId.value);
+    console.log(patientId);
     console.log(psicologoId.value);
     console.log(date.value);
     console.log(time.value);
     try {
         const response = await axios.post('/appointments', {
-            patients_id: patientId.value,
+            patients_id: patientId,
             psicologo_id: psicologoId.value,
             date: date.value,
             time: time.value
         });
         
-        successMessage.value = 'Consulta agendada com sucesso para o paciente ' + patientId.value;
+        successMessage.value = 'Consulta agendada com sucesso para o paciente ' + patientId;
         // Limpar os campos após o sucesso
-        patientId.value = '';
         psicologoId.value = '';
         date.value = '';
         time.value = '';

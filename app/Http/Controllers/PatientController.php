@@ -8,12 +8,29 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Inertia\Inertia;
 
 class PatientController extends Controller
 {
     public function index()
     {
         return Patient::all();
+    }
+
+    public function index2($patients_id)
+    {
+        // Busque os dados do psicólogo do banco de dados
+        $patient = Patient::find($patients_id);
+
+        // Verifique se o psicólogo foi encontrado
+        if (!$patient) {
+            abort(404, 'Paciente não encontrado');
+        }
+
+        // Renderize a vista Inertia e passe os dados do psicólogo para a mesma
+        return Inertia::render('Patient', [
+            'patient' => $patient
+        ]);
     }
 
     public function store(Request $request)
